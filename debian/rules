@@ -1,5 +1,18 @@
 #!/usr/bin/make -f
 # vim:noet:
 
+# Test if we have a deploy_env var defined
+ifeq ($(shell test -n "${deploy_env}" && echo yes), yes)
+    install_folder = odoo-$(deploy_env)
+else
+    install_folder = odoo
+endif
+
+
 %:
 	dh ${@} -Spython_distutils
+
+override_dh_auto_install:
+	dh_auto_install -Spython_distutils -- --prefix=/opt/$(install_folder)/usr
+	mkdir -p debian/odoo/etc/$(install_folder)
+	cp debian/openerp-server.conf debian/odoo/etc/$(install_folder)
